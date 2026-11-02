@@ -5,17 +5,10 @@ import java.awt.event.MouseEvent;
 
 public class MouseHandler extends MouseAdapter {
 
-    public volatile boolean leftClicked;  // one-shot: ผู้ใช้ต้องรีเซ็ตเอง
-    public volatile boolean blocking;     // กดค้างเพื่อป้องกัน
-
-    /**
-     * เวลา (ms) ของการคลิกขวาครั้งล่าสุดที่นับเป็น "การพยายามปัดป้อง" — บันทึกตอนเกิด event จริง
-     * (ไม่ใช่ตอน game loop อ่านค่า) จังหวะจึงแม่นยำระดับ ms และการกดค้างไม่ทำให้ค่านี้ใหม่ขึ้น
-     * คลิกถี่เกินไป (ภายใน PARRY_COOLDOWN_MS) จะไม่นับเป็นความพยายามใหม่
-     */
+    public volatile boolean leftClicked;
+    public volatile boolean blocking;
     public volatile long blockPressedAt = 0;
 
-    // ตำแหน่งเมาส์บนจอ (ใช้เล็งธนู)
     public volatile int mouseX, mouseY;
 
     @Override
@@ -42,7 +35,7 @@ public class MouseHandler extends MouseAdapter {
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {   // ลากขณะกดปุ่ม ก็ยังต้องอัปเดตตำแหน่ง
+    public void mouseDragged(MouseEvent e) {
         mouseX = e.getX();
         mouseY = e.getY();
     }

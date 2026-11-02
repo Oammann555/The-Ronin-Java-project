@@ -4,13 +4,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-/**
- * หน้าเมนูหลัก: ปุ่ม START และ EXIT
- * ใช้ภาพที่วาดเอง (Menuscreen.png, startbutton.png, exitbutton.png) ถ้ามี ไม่งั้นวาดแบบสำรองด้วยโค้ด
- *
- * สเกล = ความกว้างจอ / ความกว้าง Menuscreen.png และทุกอย่างในหน้านี้ขยายด้วยสเกลเดียวกัน
- * ตำแหน่งปุ่มอ่านจาก GameConfig (พิกัดในรูป Menuscreen.png) ถ้าเป็น -1 จะจัดให้อัตโนมัติ
- */
 final class MainMenuScreen implements Screen {
     private final GamePanel gp;
     private final MenuButton start;
@@ -23,14 +16,12 @@ final class MainMenuScreen implements Screen {
         BufferedImage bg = Assets.menuScreen;
         float k = bg != null ? w / (float) bg.getWidth() : GameConfig.UI_SCALE_DEFAULT;
 
-        int startX = GameConfig.MENU_START_X_PX < 0 ? w / 2 : Math.round(GameConfig.MENU_START_X_PX * k);
-        int startY = GameConfig.MENU_START_Y_PX < 0 ? Math.round(h * 0.52f) : Math.round(GameConfig.MENU_START_Y_PX * k);
+        int startX = w / 2;
+        int startY = Math.round(h * 0.52f);
         start = new MenuButton("START", Assets.startButton, k, startX, startY, 280, 64);
 
-        int exitX = GameConfig.MENU_EXIT_X_PX < 0 ? w / 2 : Math.round(GameConfig.MENU_EXIT_X_PX * k);
-        int exitY = GameConfig.MENU_EXIT_Y_PX < 0
-                ? start.bounds.y + start.bounds.height + Math.round(GameConfig.MENU_BUTTON_GAP_PX * k)
-                : Math.round(GameConfig.MENU_EXIT_Y_PX * k);
+        int exitX = w / 2;
+        int exitY = start.bounds.y + start.bounds.height + Math.round(GameConfig.MENU_BUTTON_GAP_PX * k);
         exit = new MenuButton("EXIT", Assets.exitButton, k, exitX, exitY, 280, 64);
     }
 
@@ -40,7 +31,7 @@ final class MainMenuScreen implements Screen {
         start.update(m.mouseX, m.mouseY);
         exit.update(m.mouseX, m.mouseY);
 
-        boolean clicked = m.leftClicked;   // คลิกเป็นแบบ one-shot: อ่านแล้วต้องรีเซ็ตเอง
+        boolean clicked = m.leftClicked;
         m.leftClicked = false;
         if (!clicked) return;
 

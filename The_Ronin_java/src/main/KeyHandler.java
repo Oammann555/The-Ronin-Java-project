@@ -9,6 +9,7 @@ public class KeyHandler implements KeyListener {
     public volatile boolean wPressed, aPressed, sPressed, dPressed;
     public volatile boolean ePressed;   // เก็บอาวุธ (one-shot)
     public volatile boolean rPressed;   // เริ่มใหม่ (one-shot)
+    public volatile boolean confirmPressed; // Enter / Space: ปิดกล่องข้อความ (one-shot)
 
     @Override public void keyTyped(KeyEvent e) { }
 
@@ -21,6 +22,7 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_D -> dPressed = true;
             case KeyEvent.VK_E -> ePressed = true;
             case KeyEvent.VK_R -> rPressed = true;
+            case KeyEvent.VK_ENTER, KeyEvent.VK_SPACE -> confirmPressed = true;
         }
     }
 

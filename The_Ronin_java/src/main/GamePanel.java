@@ -3,6 +3,9 @@ package main;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.text.BreakIterator;
+import java.util.Locale;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -24,8 +27,6 @@ import entity.Ninja;
 import entity.Player;
 import entity.Projectile;
 import entity.Samurai;
-import entity.SmokePuff;
-import entity.Effect;
 import entity.ParrySpark;
 import entity.WarriorMonk;
 import entity.Weapon;
@@ -66,6 +67,7 @@ public class GamePanel extends JPanel implements Runnable {
     List<Level> levels = Level.createAll();
     int levelIndex = 0;
     boolean allCleared = false;
+    private boolean levelIntroActive = false;
 
     public double gravity = 0.53;
     int FPS = 60;
@@ -102,6 +104,9 @@ public class GamePanel extends JPanel implements Runnable {
     public void loadLevel(int index) {
         levelIndex = index;
         Level lv = levels.get(index);
+        levelIntroActive = true;
+        keyH.confirmPressed = false;
+        keyH.wPressed = keyH.aPressed = keyH.sPressed = keyH.dPressed = false;
 
         enemies.clear();
         projectiles.clear();
@@ -248,6 +253,17 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+        // ช่วงอ่านข้อความเริ่มด่าน: หยุดการอัปเดตโลกเกมทั้งหมดไว้ก่อน
+        if (levelIntroActive) {
+            if (keyH.confirmPressed) {
+                keyH.confirmPressed = false;
+                levelIntroActive = false;
+                keyH.wPressed = keyH.aPressed = keyH.sPressed = keyH.dPressed = false;
+            }
+            return;
+        }
+        keyH.confirmPressed = false;
+
         if (!player.isAlive()) {
             if (keyH.rPressed) {
                 keyH.rPressed = false;
@@ -383,7 +399,76 @@ public class GamePanel extends JPanel implements Runnable {
         if (lighting != null) lighting.draw(g2, camera, player);   // ความมืดคลุมโลกเกม แต่ไม่คลุม HUD
 
         drawHUD(g2);
+        if (levelIntroActive) drawLevelIntro(g2);
         // ห้าม g2.dispose() — Swing เป็นเจ้าของ Graphics นี้
+    }
+
+    /** กล่องข้อความเริ่มด่าน วาดทับ HUD เพื่อให้มองเห็นชัดเจน */
+    private void drawLevelIntro(Graphics2D g2) {
+        int boxX = 28;
+        int boxY = 22;
+        int boxW = screenWidth - 56;
+        int boxH = 154;
+
+        if (Assets.textBox != null) {
+            g2.drawImage(Assets.textBox, boxX, boxY, boxW, boxH, null);
+        } else {
+            // ภาพสำรองจนกว่าจะเพิ่ม res/textbox.png
+            g2.setColor(new Color(12, 10, 9, 225));
+            g2.fillRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+            g2.setColor(new Color(190, 157, 99));
+            g2.setStroke(new java.awt.BasicStroke(3f));
+            g2.drawRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+        }
+
+        g2.setColor(new Color(232, 195, 126));
+        g2.setFont(new Font("Serif", Font.BOLD, 22));
+        g2.drawString("STAGE " + (levelIndex + 1), boxX + 30, boxY + 34);
+
+       Level level = levels.get(levelIndex);
+        String message = level.introText == null ? "" : level.introText;
+        g2.setFont(new Font("Serif", Font.PLAIN, 18));
+        g2.setColor(Color.WHITE);
+        drawWrappedIntro(g2, message, boxX + 30, boxY + 65, boxW - 60, 23, 4);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 13));
+        g2.setColor(new Color(225, 205, 170));
+        String hint = "Press ENTER or SPACE to continue";
+        int hintW = g2.getFontMetrics().stringWidth(hint);
+        g2.drawString(hint, boxX + boxW - hintW - 28, boxY + boxH - 17);
+    }
+
+    private void drawWrappedIntro(Graphics2D g2, String text, int x, int y,
+                                  int maxWidth, int lineHeight, int maxLines) {
+        FontMetrics fm = g2.getFontMetrics();
+        int line = 0;
+        for (String paragraph : text.split("\\n", -1)) {
+            StringBuilder current = new StringBuilder();
+            BreakIterator words = BreakIterator.getLineInstance(Locale.forLanguageTag("th"));
+            words.setText(paragraph);
+            int start = words.first();
+            for (int end = words.next(); end != BreakIterator.DONE; start = end, end = words.next()) {
+                String part = paragraph.substring(start, end);
+                String candidate = current + part;
+                if (fm.stringWidth(candidate.trim()) > maxWidth && current.length() > 0) {
+                    if (line >= maxLines) return;
+                    g2.drawString(current.toString().trim(), x, y + line * lineHeight);
+                    line++;
+                    current.setLength(0);
+                    current.append(part.stripLeading());
+                } else {
+                    current.append(part);
+                }
+            }
+            if (current.length() > 0) {
+                if (line >= maxLines) return;
+                g2.drawString(current.toString().trim(), x, y + line * lineHeight);
+                line++;
+            } else if (paragraph.isEmpty()) {
+                line++;
+            }
+            if (line >= maxLines) return;
+        }
     }
 
     private void drawHUD(Graphics2D g2) {
@@ -423,7 +508,7 @@ public class GamePanel extends JPanel implements Runnable {
             line += 22;
         }
 
-        // ข้อความบอกใบ้เก็บอาวุธ
+        // ข้อความบอก เก็บอาวุธ กด E
         for (WeaponDrop d : drops) {
             if (d.getBounds().intersects(player.getBounds())) {
                 g2.drawString("[E] pick up " + d.weapon.displayName(), 20, line);

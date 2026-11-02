@@ -8,23 +8,16 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-/**
- * ปุ่มบนหน้าเมนู: รู้ว่าเมาส์อยู่บนปุ่มไหม และวาดตัวเองตามสถานะ
- * ถ้ามีรูปที่วาดเอง (skin) จะใช้รูปนั้น (ขนาดปุ่ม = ขนาดรูป × scale, ตอน hover ใช้สำเนาที่สว่างขึ้น)
- * ไม่งั้นวาดปุ่มสำรองด้วยโค้ด
- */
 final class MenuButton {
     final Rectangle bounds;
     final String label;
     private final BufferedImage skin;
     boolean hovered;
 
-    /** ปุ่มวาดด้วยโค้ดล้วน cx = กึ่งกลางแนวนอน, y = ขอบบน */
     MenuButton(String label, int cx, int y, int w, int h) {
         this(label, null, 1f, cx, y, w, h);
     }
 
-    /** ปุ่มที่มีรูป: ถ้า skin เป็น null จะใช้ fallbackW x fallbackH และวาดด้วยโค้ดแทน */
     MenuButton(String label, BufferedImage skin, float scale, int cx, int y, int fallbackW, int fallbackH) {
         this.label = label;
         this.skin = skin;

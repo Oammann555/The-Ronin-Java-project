@@ -44,6 +44,7 @@ public final class Assets {
     // ไม่บังคับ: ถ้าไฟล์ไหนยังไม่มี (เป็น null) หน้าเมนูจะวาดส่วนนั้นด้วยโค้ดแทน
     public static BufferedImage menuScreen, startButton, exitButton, backButton;
     public static BufferedImage weaBackground, weaFrame, weaInnerFrame, weaShowBox;
+    public static BufferedImage textBox; // ไม่บังคับ: res/textbox.png
     private static final Map<Weapon, BufferedImage> weaImages = new EnumMap<>(Weapon.class);
     private static final Map<BufferedImage, BufferedImage> brightCache = new IdentityHashMap<>();
     private static final List<String> missingUi = new ArrayList<>();
@@ -90,6 +91,7 @@ public final class Assets {
         weaFrame      = readUi("weaFrame.png", true);
         weaInnerFrame = readUi("weaInnerFrame.png", true);
         weaShowBox    = readUi("weaShowBox.png", true);
+        textBox       = readUi("textbox.png", false);
         for (Weapon w : Weapon.values()) {
             // weaKatana.png, weaYari.png, weaNaginata.png, weaYumi.png, weaNindachi.png (ใช้ชื่อที่แสดง ไม่ใช่ชื่อไฟล์เกม)
             weaImages.put(w, readUi("wea" + w.displayName() + ".png", true));
